@@ -230,6 +230,7 @@ def hotel_weighted():
             f.write('\n')
             value = 0
 
+
 def hotel_normalization():
     tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
             '<Business service>']
@@ -270,8 +271,284 @@ def hotel_normalization():
         norm = []
 
 
-def recommend_by_user():
+def user_matris(user):
+    tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
+            '<Business service>']
 
-    
+    norm = []
+    fname = 'C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\cdata\\%s.txt' % user
+    f = open(fname, 'r+', encoding="utf-8")
+    lines = f.readlines()
+    lines = [x.replace('\n', '') for x in lines]
+    for tag in tags:
+        for line in lines:
+            if line.startswith(tag):
+                ntag = line.replace(tag, '')
+                ntag = float(ntag)
+                norm.append(ntag)
+    return norm
 
-hotel_normalization()
+
+def compare_user(matris, user):
+    tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
+            '<Business service>']
+    os.chdir('C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\cdata')
+    DIR = os.listdir()
+    DIR = [x.replace('.txt', '') for x in DIR]
+    DIR.remove(user)
+    fav = [i for i, value in enumerate(matris) if value == 1.0]
+
+    u_list = []
+    for user in DIR:
+        toplam = 0.0
+        norm = []
+        fname = 'C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\cdata\\%s.txt' % user
+        f = open(fname, 'r', encoding="utf-8")
+        lines = f.readlines()
+        lines = [x.replace('\n', '') for x in lines]
+        for tag in tags:
+            for line in lines:
+                if line.startswith(tag):
+                    ntag = line.replace(tag, '')
+                    ntag = float(ntag)
+                    norm.append(ntag)
+
+        for i in fav:
+            if norm[i] == 1.0:
+                for x in range(7):
+                    temp = norm[x] - matris[x]
+                    toplam = abs(temp) + toplam
+                u_list.append('{},{}'.format(toplam, user))
+                break
+            else:
+                pass
+    return u_list
+
+
+def compare_user0(matris):
+    tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
+            '<Business service>']
+    os.chdir('C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\cdata')
+    DIR = os.listdir()
+    DIR = [x.replace('.txt', '') for x in DIR]
+    fav = [i for i, value in enumerate(matris) if value == 1.0]
+
+    u_list = []
+    for user in DIR:
+        toplam = 0.0
+        norm = []
+        fname = 'C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\cdata\\%s.txt' % user
+        f = open(fname, 'r', encoding="utf-8")
+        lines = f.readlines()
+        lines = [x.replace('\n', '') for x in lines]
+        for tag in tags:
+            for line in lines:
+                if line.startswith(tag):
+                    ntag = line.replace(tag, '')
+                    ntag = float(ntag)
+                    norm.append(ntag)
+
+        for i in fav:
+            if norm[i] == 1.0:
+                for x in range(7):
+                    temp = norm[x] - matris[x]
+                    toplam = abs(temp) + toplam
+                u_list.append('{},{}'.format(toplam, user))
+                break
+            else:
+                pass
+    return u_list
+
+
+def compare_hotel(matris):
+    tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
+            '<Business service>']
+    os.chdir('C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\hcdata')
+    DIR = os.listdir()
+    DIR = [x.replace('.dat', '') for x in DIR]
+    fav = [i for i, value in enumerate(matris) if value == 1.0]
+
+    h_list = []
+    for hotel in DIR:
+        toplam = 0.0
+        norm = []
+        fname = 'C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\hcdata\\%s.dat' % hotel
+        f = open(fname, 'r', encoding="utf-8")
+        lines = f.readlines()
+        lines = [x.replace('\n', '') for x in lines]
+        for tag in tags:
+            for line in lines:
+                if line.startswith(tag):
+                    ntag = line.replace(tag, '')
+                    ntag = float(ntag)
+                    norm.append(ntag)
+
+        for i in fav:
+            if norm[i] == 1.0:
+                for x in range(7):
+                    temp = norm[x] - matris[x]
+                    toplam = abs(temp) + toplam
+                h_list.append('{},{}'.format(toplam, hotel))
+                break
+            else:
+                pass
+    return h_list
+
+
+def get_result(matris):
+    user = []
+    temp = ['']
+    for i in range(3):
+        temp = matris[i].split(",")
+        user.append(temp[1])
+    return user
+
+
+def get_recommendation(users, fav):
+    tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
+            '<Business service>', '<Overall>']
+    ntag = ''
+    data = []
+    x = 0
+    indice = 0
+    top = []
+    hotels = []
+    son = []
+    for user in users:
+        fname = 'C:\\Users\\Atacem\\PycharmProjects\\pythonProject\\userdata\\%s.txt' % user
+        f = open(fname, 'r', encoding="utf-8")
+        lines = f.readlines()
+        lines = [x.replace('\n', '') for x in lines]
+        for tag in tags:
+            for line in lines:
+                if line.startswith(tag):
+                    if ntag == '':
+                        temp = line.replace(tag, '')
+                        ntag = temp
+
+                    else:
+                        temp = line.replace(tag, '')
+                        ntag = '{},{}'.format(ntag, temp)
+            data.append(ntag)
+            ntag = ''
+        for line in lines:
+            if line.startswith('hotel'):
+                hotels.append(line)
+    print(data)
+    print(data.__len__())
+    for d in data:
+        tempdata = d.split(',')
+        for i in range(tempdata.__len__()):
+            temp = tempdata[i]
+            ind = indice + i
+
+            if x % 8 == 0:
+
+                if fav.__contains__(x % 8):
+                    toplam = (int(temp) * 5)
+
+                elif x % 8 == 7:
+                    toplam = (int(temp) * 5)
+
+                else:
+                    toplam = int(temp)
+
+            else:
+                if fav.__contains__(x % 8):
+                    toplam = top[ind] + (int(temp) * 5)
+
+                elif x % 8 == 7:
+                    toplam = top[ind] + (int(temp) * 5)
+
+                else:
+                    toplam = top[ind] + int(temp)
+
+            if x % 8 == 0:
+                top.append(toplam)
+
+            else:
+                top[ind] = toplam
+
+        x = x + 1
+        if x % 8 == 0:
+            indice = indice + len(tempdata)
+    print(len(top))
+    print(hotels)
+    print(len(hotels))
+    for i in range(hotels.__len__()):
+        temp = '{},{}'.format(int(top[i]), hotels[i])
+        son.append(temp)
+    return son
+
+
+def comparer(rec):
+    compare = []
+    for r in rec:
+        temp = r.split(',')
+        compare.append(int(temp[0]))
+    return compare
+
+
+print('Kullanıcı oluşturmak için 0 halihazırda olan kullanıcı ile devam etmek için 1 yazınız')
+x = int(input())
+
+if x == 1:
+    print('Kullanıcı adı: ')
+    u = input()
+    rechotels = []
+    dup = []
+    fav = [i for i, value in enumerate(user_matris(u)) if value == 1.0]
+    users = sorted(compare_user(user_matris(u), u))[:3]
+    hotels = sorted(compare_hotel(user_matris(u)))[:3]
+    print(users)
+    print(hotels)
+    print(get_result(users))
+    print(get_result(hotels))
+    rec = get_recommendation(get_result(users), fav)
+    print(rec)
+    recommender = sorted(comparer(rec), reverse=True)[:3]
+    print(recommender)
+    for i in range(3):
+        for r in rec:
+            if r.startswith(str(recommender[i])) and not dup.__contains__(r) and len(rechotels) < 3:
+                dup.append(r)
+                temp = r.split(',')
+                rechotels.append(temp[1])
+
+    print(rechotels + get_result(hotels))
+if x == 0:
+    ar = []
+    tags = ['<Value>', '<Rooms>', '<Location>', '<Cleanliness>', '<Check in / front desk>', '<Service>',
+            '<Business service>']
+    for i in range(7):
+        print(tags[i] + ' degerini giriniz (0-1 arası float eğerler girilmelidir)')
+        a = float(input())
+        if a > 1.0 or a < 0.0:
+            print('yanlış değer girildi:')
+            break
+        else:
+            ar.append(a)
+
+    print('Kullanıcı adı giriniz: ')
+    u = input()
+    rechotels = []
+    dup = []
+    fav = [i for i, value in enumerate(ar) if value == 1.0]
+    users = sorted(compare_user0(ar))[:3]
+    hotels = sorted(compare_hotel(ar))[:3]
+    print(users)
+    print(hotels)
+    print(get_result(users))
+    print(get_result(hotels))
+    rec = get_recommendation(get_result(users), fav)
+    print(rec)
+    recommender = sorted(comparer(rec), reverse=True)[:3]
+    print(recommender)
+    for i in range(3):
+        for r in rec:
+            if r.startswith(str(recommender[i])) and not dup.__contains__(r) and len(rechotels) < 3:
+                dup.append(r)
+                temp = r.split(',')
+                rechotels.append(temp[1])
+
+    print(rechotels + get_result(hotels))
